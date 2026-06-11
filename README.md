@@ -7,7 +7,7 @@ Two pages:
 - **Overview** (`/`) — live health and Prometheus metrics from the deployed server: indexed corpus size, tool-call counts, RBAC denials by security layer, tool latency, Confluence sync status.
 - **RBAC playground** (`/playground`) — ask one question through two real MCP sessions holding different bearer tokens (`JUNIOR_OP` vs `ATS_CORE_LEAD`) and see, side by side, which document chunks each authorization level is allowed to retrieve. Chunks withheld from the junior operator are highlighted.
 
-Built with Next.js 16 (App Router), Tailwind 4, the official [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) as a streamable-HTTP client, and Upstash for rate limiting. Design rationale lives in [TAD.md](TAD.md) — house convention: no code comments.
+Built with Next.js 16 (App Router, Cache Components / Partial Prerendering, React Compiler), Tailwind 4, the official [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) as a streamable-HTTP client, and Upstash for rate limiting. Server-first: the playground is a GET form driven by URL search params and works with JavaScript disabled; the only client component is a pending-state submit button. Design rationale lives in [TAD.md](TAD.md) — house convention: no code comments.
 
 ## Setup
 
@@ -24,7 +24,7 @@ bun dev
 | `MCP_TOKEN_ATS_CORE_LEAD` | Demo bearer token mapped server-side to the `ATS_CORE_LEAD` role |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | Rate limiting (optional in development, required in production) |
 
-Tokens are only ever read server-side (`server-only` guarded); the browser talks exclusively to this app's `/api/*` routes, which are rate limited per IP plus a global daily budget.
+Tokens are only ever read server-side (`server-only` guarded); the app exposes no JSON API — the browser receives rendered HTML only, and searches are rate limited per IP plus a global daily budget.
 
 ## Deploy
 

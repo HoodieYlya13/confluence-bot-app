@@ -17,9 +17,7 @@ export async function semanticSearch(
   topK: number,
 ): Promise<SearchChunk[]> {
   const token = process.env[ROLE_TOKEN_ENV[role]];
-  if (!token) {
-    throw new Error(`${ROLE_TOKEN_ENV[role]} is not configured.`);
-  }
+  if (!token) throw new Error(`${ROLE_TOKEN_ENV[role]} is not configured.`);
 
   const transport = new StreamableHTTPClientTransport(
     new URL("/mcp", MCP_SERVER_URL),
@@ -33,9 +31,8 @@ export async function semanticSearch(
       name: "semantic_search_accelerator",
       arguments: { query, top_k: topK },
     });
-    if (result.isError) {
+    if (result.isError)
       throw new Error(extractText(result.content) || "MCP tool call failed.");
-    }
     return normalizeResult(result as Record<string, unknown>);
   } finally {
     await client.close().catch(() => {});

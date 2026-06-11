@@ -15,15 +15,25 @@ The app is deliberately thin. The engineering story (4-layer RBAC, ACL pushdown,
 
 ### All upstream calls are server-side; tokens never reach the browser
 
-Route handlers and server components are the only places that talk to the MCP server. The two demo bearer tokens live in environment variables (`MCP_TOKEN_JUNIOR_OP`, `MCP_TOKEN_ATS_CORE_LEAD`) read inside `lib/mcp.ts`, which is guarded by `server-only` so any accidental client import fails the build. The browser only ever sees this app's own `/api/*` surface.
+Server components and server actions are the only places that talk to the MCP server. The two demo bearer tokens live in environment variables (`MCP_TOKEN_JUNIOR_OP`, `MCP_TOKEN_ATS_CORE_LEAD`) read inside `lib/mcp.ts`, which is guarded by `server-only` so any accidental client import fails the build. The browser only ever receives rendered HTML and RSC payloads — there is no JSON API surface at all.
+
+### Server-first UI: the URL is the state, client JS is one button
+
+The playground is a server component driven entirely by `?q=` search params. The search box is a `next/form` `<Form>` with a string action — a plain GET form under the hood, so the entire demo works with JavaScript disabled (with JS, Next upgrades submission to a client-side navigation with prefetched shell). Suggested queries are `<Link>`s, not click handlers. Results render inside a `<Suspense>` boundary fed the `searchParams` promise, which keeps the page shell static (both routes build as Partial Prerender: static HTML shell, dynamic content streamed).
+
+The only client component in the app is `components/pending-button.tsx`, a `useFormStatus` submit button shared by the search form and the overview's refresh form — the documented pattern for instant feedback on `<Form>` submissions. The overview refresh is a server action calling `refresh()` from `next/cache`, replacing the previous `router.refresh()` client component.
+
+This replaced an earlier version with a fully client-side playground page posting to `/api/search` plus `/api/health` and `/api/metrics` proxy routes. The rewrite deleted all three route handlers: less client JS, shareable/linkable search results, progressive enhancement for free, and a smaller public attack surface — the rate limiter now guards the only path that can reach the MCP server, the server render of the results.
+
+The React Compiler is enabled (`reactCompiler: true`), so there is no manual `useMemo`/`useCallback`/`memo` anywhere; the compiler owns memoization.
 
 ### Real MCP client, not a REST shim
 
 `lib/mcp.ts` uses the official `@modelcontextprotocol/sdk` `Client` over `StreamableHTTPClientTransport`, performing the full initialize → tool-call → close handshake per request. A raw `fetch` to a bespoke endpoint would have been less code, but exercising the actual protocol means the project demonstrates both an MCP server (Python) and an MCP client (TypeScript). Connections are per-request rather than pooled: the playground is low-traffic by design and a stateless handler survives serverless cold starts.
 
-### One `/api/search` call fans out to both roles
+### One search render fans out to both roles
 
-The comparison is the product, so the server runs both role sessions in parallel (`Promise.allSettled`) and returns a per-role result envelope. This charges the rate limiter once per comparison, keeps the two panes atomic (no skew between halves of the demo), and halves client round-trips. Per-pane upstream failures degrade independently instead of failing the whole comparison.
+The comparison is the product, so one server render runs both role sessions in parallel (`Promise.allSettled`) and produces a per-role result envelope. This charges the rate limiter once per comparison and keeps the two panes atomic (no skew between halves of the demo). Per-pane upstream failures degrade independently instead of failing the whole comparison.
 
 ### Rate limiting: platform headers, not cookies
 
@@ -38,7 +48,7 @@ In development without Upstash credentials the limiter no-ops with a warning; in
 
 ### Input constraints at the boundary
 
-`/api/search` enforces non-empty queries ≤ 300 characters and clamps `top_k` to [1, 5] before anything reaches the MCP server (which clamps to [1, 10] itself — defense in depth, smaller public surface than the protocol allows).
+The search render rejects empty or > 300-character queries and pins `top_k` to 5 before anything reaches the MCP server (which clamps to [1, 10] itself — defense in depth, smaller public surface than the protocol allows). The form mirrors the same limits client-side via native `required` and `maxLength` attributes, no validation JS.
 
 ### Sleeping-Space handling is a feature, not an error
 

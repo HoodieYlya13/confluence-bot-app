@@ -17,7 +17,7 @@ function getRedisClient(): Redis | null {
   if (!url || !token) {
     if (process.env.NODE_ENV === "development") {
       console.warn(
-        "UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN not found. Rate limiting is disabled.",
+        "⚠️ UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN not found. Rate limiting will be disabled.",
       );
       return null;
     }

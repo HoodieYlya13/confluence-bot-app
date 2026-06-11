@@ -4,7 +4,8 @@ export type Sample = {
   value: number;
 };
 
-const SAMPLE_LINE = /^([a-zA-Z_:][a-zA-Z0-9_:]*)(\{([^}]*)\})?\s+(-?[\d.eE+]+)$/;
+const SAMPLE_LINE =
+  /^([a-zA-Z_:][a-zA-Z0-9_:]*)(\{([^}]*)\})?\s+(-?[\d.eE+]+)$/;
 const LABEL_PAIR = /^\s*([^=]+)="(.*)"\s*$/;
 
 export function parsePrometheus(text: string): Sample[] {
@@ -22,9 +23,7 @@ export function parsePrometheus(text: string): Sample[] {
       }
     }
     const value = Number(match[4]);
-    if (Number.isFinite(value)) {
-      samples.push({ name: match[1], labels, value });
-    }
+    if (Number.isFinite(value)) samples.push({ name: match[1], labels, value });
   }
   return samples;
 }
@@ -43,7 +42,10 @@ export function groupByLabel(
   return grouped;
 }
 
-export function singleValue(samples: Sample[], metricName: string): number | null {
+export function singleValue(
+  samples: Sample[],
+  metricName: string,
+): number | null {
   const match = samples.find((sample) => sample.name === metricName);
   return match ? match.value : null;
 }

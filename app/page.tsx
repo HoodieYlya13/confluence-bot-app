@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { RefreshButton } from "@/components/refresh-button";
+import { refreshOverview } from "@/app/actions";
+import { PendingButton } from "@/components/pending-button";
 import {
   groupByLabel,
   parsePrometheus,
@@ -29,7 +30,14 @@ export default function OverviewPage() {
             server on Hugging Face Spaces.
           </p>
         </div>
-        <RefreshButton />
+        <form action={refreshOverview}>
+          <PendingButton
+            pendingLabel="Refreshing…"
+            className="rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-1.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-50"
+          >
+            Refresh
+          </PendingButton>
+        </form>
       </section>
       <Suspense fallback={<OverviewSkeleton />}>
         <LiveOverview />
@@ -264,9 +272,9 @@ function KeyValueList({
   entries: [string, number | string][];
   empty: string;
 }) {
-  if (entries.length === 0) {
+  if (entries.length === 0)
     return <p className="text-sm text-zinc-500">{empty}</p>;
-  }
+
   return (
     <ul className="flex flex-col gap-2">
       {entries.map(([key, value]) => (

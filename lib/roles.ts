@@ -13,9 +13,3 @@ export type SearchChunk = {
 export type PaneResult =
   | { ok: true; chunks: SearchChunk[] }
   | { ok: false; error: string };
-
-export type SearchResponse = {
-  query: string;
-  topK: number;
-  results: Record<DemoRole, PaneResult>;
-};

@@ -33,7 +33,9 @@ export default function RootLayout({
         <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur sticky top-0 z-10">
           <nav className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-4">
             <Link href="/" className="font-semibold tracking-tight">
-              <span className="text-sky-600 dark:text-sky-400 font-mono">ATS</span>{" "}
+              <span className="text-sky-600 dark:text-sky-400 font-mono">
+                ATS
+              </span>{" "}
               Docs RAG Console
             </Link>
             <div className="flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400">

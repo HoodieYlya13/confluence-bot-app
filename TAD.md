@@ -35,6 +35,12 @@ The React Compiler is enabled (`reactCompiler: true`), so there is no manual `us
 
 The comparison is the product, so one server render runs both role sessions in parallel (`Promise.allSettled`) and produces a per-role result envelope. This charges the rate limiter once per comparison and keeps the two panes atomic (no skew between halves of the demo). Per-pane upstream failures degrade independently instead of failing the whole comparison.
 
+### Restricted-chunk highlight: a clearance accent, not an error
+
+Chunks the lead retrieved but the junior did not are badged "Restricted — requires ATS_CORE_LEAD" in violet. An earlier version used rose ("Hidden from JUNIOR_OP"), but rose is the app's danger color (error notices, blocked-attempt counts), so the lead pane read as if something was wrong — when the highlight is the success story: elevated access doing its job. Violet was chosen because the other accents are taken: amber marks the junior role, emerald the lead, rose errors.
+
+The badge condition — the chunk's `doc_id` is absent from the junior's result set — is a heuristic, not ground truth. A document the junior *can* see could rank below their top-5 and be falsely badged. The demo corpus keeps restricted and routine documents distinct enough that this doesn't occur in practice, and the alternative (asking the server for per-document ACLs) would add an API surface solely for presentation.
+
 ### Rate limiting: platform headers, not cookies
 
 Adapted from a prior project that stored the client IP in an `httpOnly` cookie set by middleware. The cookie round-trips through the client, so a caller can replace it per request and rotate identities at will — fine for a contact form, not for the public face of a security-themed project. Here the identity key is read at request time from `x-real-ip` / `x-forwarded-for`, which the hosting platform sets and the client cannot override. This also removes the need for a `proxy.ts` entirely: fewer moving parts, same guarantee, and the limiter logic stays in one file (`lib/ratelimit.ts`).

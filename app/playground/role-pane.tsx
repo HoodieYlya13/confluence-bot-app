@@ -92,7 +92,7 @@ function ChunkCard({
     <div
       className={`rounded-md border p-3 ${
         restricted
-          ? "border-rose-300 dark:border-rose-800 bg-rose-50/50 dark:bg-rose-950/20"
+          ? "border-violet-300 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-950/20"
           : "border-zinc-200 dark:border-zinc-800"
       }`}
     >
@@ -108,8 +108,8 @@ function ChunkCard({
         </span>
       </div>
       {restricted && (
-        <span className="mt-2 inline-block rounded-full bg-rose-100 dark:bg-rose-950 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-rose-700 dark:text-rose-300">
-          Hidden from JUNIOR_OP
+        <span className="mt-2 inline-block rounded-full bg-violet-100 dark:bg-violet-950 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-violet-700 dark:text-violet-300">
+          🔒 Restricted — requires ATS_CORE_LEAD
         </span>
       )}
       <p className="mt-2 line-clamp-5 whitespace-pre-line text-xs leading-5 text-zinc-600 dark:text-zinc-400">

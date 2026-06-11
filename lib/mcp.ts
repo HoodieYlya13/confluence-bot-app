@@ -3,6 +3,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import type { DemoRole, SearchChunk } from "./roles";
 import { MCP_SERVER_URL } from "./upstream";
+import { tryCatch, tryCatchSync } from "./utils";
 
 export { DEMO_ROLES, type DemoRole, type SearchChunk } from "./roles";
 
@@ -25,18 +26,21 @@ export async function semanticSearch(
   );
   const client = new Client({ name: "confluence-bot-app", version: "0.1.0" });
 
-  try {
+  const [err, result] = await tryCatch(async () => {
     await client.connect(transport);
-    const result = await client.callTool({
+    const res = await client.callTool({
       name: "semantic_search_accelerator",
       arguments: { query, top_k: topK },
     });
-    if (result.isError)
-      throw new Error(extractText(result.content) || "MCP tool call failed.");
-    return normalizeResult(result as Record<string, unknown>);
-  } finally {
-    await client.close().catch(() => {});
-  }
+    if (res.isError)
+      throw new Error(extractText(res.content) || "MCP tool call failed.");
+    return normalizeResult(res as Record<string, unknown>);
+  });
+
+  await tryCatch(client.close());
+
+  if (err) throw err;
+  return result;
 }
 
 function extractText(content: unknown): string {
@@ -64,12 +68,10 @@ function normalizeResult(result: Record<string, unknown>): SearchChunk[] {
     for (const item of content) {
       const entry = item as { type?: string; text?: string };
       if (entry?.type !== "text" || typeof entry.text !== "string") continue;
-      try {
-        const parsed = JSON.parse(entry.text);
+      const [parseErr, parsed] = tryCatchSync(() => JSON.parse(entry.text!));
+      if (!parseErr && parsed) {
         if (Array.isArray(parsed)) chunks.push(...parsed);
         else chunks.push(parsed);
-      } catch {
-        continue;
       }
     }
   }

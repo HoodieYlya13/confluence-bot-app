@@ -5,6 +5,7 @@ import { PendingButton } from "@/components/pending-button";
 import { DEMO_ROLES, semanticSearch } from "@/lib/mcp";
 import { checkRateLimit, RateLimitError } from "@/lib/ratelimit";
 import type { DemoRole, PaneResult } from "@/lib/roles";
+import { tryCatch } from "@/lib/utils";
 import { PaneBody, PaneSkeleton, RolePaneShell } from "./role-pane";
 
 export const maxDuration = 60;
@@ -124,9 +125,8 @@ async function SearchResults({
       </>
     );
 
-  try {
-    await checkRateLimit("search");
-  } catch (error) {
+  const [error] = await tryCatch(checkRateLimit("search"));
+  if (error) {
     if (error instanceof RateLimitError)
       return (
         <>

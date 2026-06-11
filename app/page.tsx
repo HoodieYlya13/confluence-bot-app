@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { refreshOverview } from "@/app/actions";
 import { PendingButton } from "@/components/pending-button";
+import { Arrow } from "@/components/arrow";
 import {
   groupByLabel,
   parsePrometheus,
@@ -129,9 +130,10 @@ async function LiveOverview() {
             href={new URL("/health", MCP_SERVER_URL).toString()}
             target="_blank"
             rel="noreferrer"
-            className="ml-auto text-sm text-sky-600 dark:text-sky-400 hover:underline"
+            className="ml-auto flex items-center gap-0.5 text-sm text-sky-600 dark:text-sky-400 hover:underline group"
           >
-            raw /health ↗
+            raw /health
+            <Arrow direction="up-right" />
           </a>
         </div>
       </section>
@@ -167,12 +169,13 @@ async function LiveOverview() {
             Every denial here is the layered security model doing its job —
             details in{" "}
             <a
-              className="text-sky-600 dark:text-sky-400 hover:underline"
+              className="inline-flex items-center gap-0.5 text-sky-600 dark:text-sky-400 hover:underline group"
               href="https://github.com/HoodieYlya13/mcp-confluence-documentation-rag/blob/main/SECURITY.md"
               target="_blank"
               rel="noreferrer"
             >
-              SECURITY.md ↗
+              SECURITY.md
+              <Arrow direction="up-right" />
             </a>
           </p>
         </Card>
@@ -215,9 +218,10 @@ async function LiveOverview() {
         </p>
         <Link
           href="/playground"
-          className="mt-3 inline-block rounded-md bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-500"
+          className="mt-3 inline-flex items-center gap-1 rounded-md bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-500 group"
         >
-          Open playground →
+          Open playground
+          <Arrow direction="right" />
         </Link>
       </section>
     </div>

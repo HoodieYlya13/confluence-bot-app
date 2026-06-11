@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { Arrow } from "@/components/arrow";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -57,9 +58,10 @@ export default function RootLayout({
                 href="https://github.com/HoodieYlya13/confluence-bot"
                 target="_blank"
                 rel="noreferrer"
-                className="hover:text-zinc-900 dark:hover:text-zinc-100"
+                className="inline-flex items-center gap-0.5 hover:text-zinc-900 dark:hover:text-zinc-100 group"
               >
-                GitHub ↗
+                GitHub
+                <Arrow direction="up-right" className="text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-100" />
               </a>
             </div>
           </nav>

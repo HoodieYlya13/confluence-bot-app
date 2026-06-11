@@ -2,6 +2,8 @@
 
 Public console for the [mcp-confluence-documentation-rag](https://github.com/HoodieYlya13/mcp-confluence-documentation-rag) server — an RBAC-enforced MCP documentation RAG deployed on Hugging Face Spaces.
 
+**Live at [confluence-bot.hy13dev.com](https://confluence-bot.hy13dev.com).**
+
 Two pages:
 
 - **Overview** (`/`) — live health and Prometheus metrics from the deployed server: indexed corpus size, tool-call counts, RBAC denials by security layer, tool latency, Confluence sync status.

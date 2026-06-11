@@ -108,14 +108,32 @@ function ChunkCard({
         </span>
       </div>
       {restricted && (
-        <span className="mt-2 inline-block rounded-full bg-violet-100 dark:bg-violet-950 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-violet-700 dark:text-violet-300">
-          🔒 Restricted — requires ATS_CORE_LEAD
+        <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-violet-100 dark:bg-violet-950 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-violet-700 dark:text-violet-300">
+          <LockIcon className="size-3" />
+          Restricted — requires ATS_CORE_LEAD
         </span>
       )}
       <p className="mt-2 line-clamp-5 whitespace-pre-line text-xs leading-5 text-zinc-600 dark:text-zinc-400">
         {chunk.text}
       </p>
     </div>
+  );
+}
+
+function LockIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      className={className}
+    >
+      <path
+        fillRule="evenodd"
+        d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z"
+        clipRule="evenodd"
+      />
+    </svg>
   );
 }
 

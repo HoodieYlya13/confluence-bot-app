@@ -45,6 +45,10 @@ The toggle is a **radio field, not a second submit button**, for a non-obvious r
 
 In answer mode the restricted accent moves from whole chunks to **hex register tokens** (`0x…`): tokens present in the lead's answer but absent from the junior's are badged violet — the same "clearance accent" idea applied to generated text, and a direct visual echo of the server's post-generation leak scanner. A refusal (`Security Exception`) renders as a distinct rose "blocked by guardrail" card.
 
+### Source links to the live Confluence page
+
+Each retrieved chunk now carries a `url` (the server resolves it from the Confluence `_links.webui` slug). In retrieval mode the chunk's `doc_id` becomes a sky link to that page; in answer mode the agent appends a `**Sources:**` footer of Markdown links, so the playground closes the loop from "here is the grounded answer" to "here is the page it came from". This required teaching the hand-rolled `parseMarkdown` inline pass to recognise `[text](url)` (it previously handled only bold, inline code and hex tokens) — links open in a new tab with `rel="noopener noreferrer"`. The field is optional: against the air-gapped local source the server sends no URL and the label renders as plain text, so the console degrades cleanly when pointed at an offline server.
+
 ### Restricted-chunk highlight: a clearance accent, not an error
 
 Chunks the lead retrieved but the junior did not are badged "Restricted — requires ATS_CORE_LEAD" in violet. An earlier version used rose ("Hidden from JUNIOR_OP"), but rose is the app's danger color (error notices, blocked-attempt counts), so the lead pane read as if something was wrong — when the highlight is the success story: elevated access doing its job. Violet was chosen because the other accents are taken: amber marks the junior role, emerald the lead, rose errors.

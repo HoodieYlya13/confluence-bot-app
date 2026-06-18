@@ -6,6 +6,7 @@ export type DemoMode = "search" | "answer";
 export type SearchChunk = {
   doc_id: string;
   space: string;
+  url?: string;
   chunk_index: number;
   allowed_roles: string[];
   text: string;

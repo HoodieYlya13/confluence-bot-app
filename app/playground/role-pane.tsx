@@ -157,9 +157,20 @@ function ChunkCard({
       }`}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <span className="font-mono text-xs font-medium text-zinc-700 dark:text-zinc-300">
-          {chunk.doc_id}
-        </span>
+        {chunk.url ? (
+          <a
+            href={chunk.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-xs font-medium text-sky-700 dark:text-sky-400 hover:underline"
+          >
+            {chunk.doc_id}
+          </a>
+        ) : (
+          <span className="font-mono text-xs font-medium text-zinc-700 dark:text-zinc-300">
+            {chunk.doc_id}
+          </span>
+        )}
         <span className="font-mono text-xs text-zinc-400">
           chunk {chunk.chunk_index}
         </span>

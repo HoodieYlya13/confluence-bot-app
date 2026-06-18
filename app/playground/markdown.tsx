@@ -4,10 +4,24 @@ function renderInlineMarkdown(
   text: string,
   juniorTokens: Set<string>,
 ): React.ReactNode {
-  const REGEX = /(\*\*[^*]+\*\*|`[^`]+`|0x[0-9A-Fa-f]{4,})/g;
+  const REGEX =
+    /(\[[^\]]+\]\([^)]+\)|\*\*[^*]+\*\*|`[^`]+`|0x[0-9A-Fa-f]{4,})/g;
 
   const parts = text.split(REGEX);
   return parts.map((part, index) => {
+    const link = /^\[([^\]]+)\]\(([^)]+)\)$/.exec(part);
+    if (link)
+      return (
+        <a
+          key={index}
+          href={link[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sky-700 dark:text-sky-400 underline hover:no-underline break-all"
+        >
+          {link[1]}
+        </a>
+      );
     if (part.startsWith("**") && part.endsWith("**")) {
       const content = part.slice(2, -2);
       return (

@@ -1,4 +1,15 @@
-import type { DemoRole, PaneResult, SearchChunk } from "@/lib/roles";
+import type {
+  AnswerResult,
+  DemoRole,
+  PaneResult,
+  SearchChunk,
+} from "@/lib/roles";
+
+const HEX_TOKEN = /(0x[0-9A-Fa-f]{4,})/g;
+
+export function extractHexTokens(text: string): string[] {
+  return text.match(HEX_TOKEN) ?? [];
+}
 
 const ROLE_META: Record<
   DemoRole,
@@ -79,6 +90,64 @@ export function PaneBody({
       ))}
     </>
   );
+}
+
+export function AnswerBody({
+  result,
+  juniorTokens,
+}: {
+  role: DemoRole;
+  result: AnswerResult;
+  juniorTokens: Set<string>;
+}) {
+  if (!result.ok)
+    return (
+      <p className="text-sm text-amber-700 dark:text-amber-400">
+        {result.error}
+      </p>
+    );
+
+  const { answer } = result;
+
+  if (answer.includes("Security Exception"))
+    return (
+      <div className="rounded-md border border-rose-300 dark:border-rose-900 bg-rose-50/60 dark:bg-rose-950/30 p-3">
+        <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 dark:bg-rose-950 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-rose-700 dark:text-rose-300">
+          <LockIcon className="size-3" />
+          Blocked by guardrail
+        </span>
+        <p className="mt-2 text-sm leading-6 text-rose-700 dark:text-rose-300">
+          {answer}
+        </p>
+      </div>
+    );
+
+  return (
+    <div className="rounded-md border border-zinc-200 dark:border-zinc-800 p-3">
+      <p className="whitespace-pre-line text-sm leading-6 text-zinc-700 dark:text-zinc-300">
+        {renderWithTokens(answer, juniorTokens)}
+      </p>
+    </div>
+  );
+}
+
+function renderWithTokens(text: string, juniorTokens: Set<string>) {
+  return text.split(HEX_TOKEN).map((part, index) => {
+    if (index % 2 === 0) return <span key={index}>{part}</span>;
+    const restricted = !juniorTokens.has(part);
+    return (
+      <span
+        key={index}
+        className={
+          restricted
+            ? "rounded bg-violet-100 dark:bg-violet-950 px-1 font-mono text-violet-700 dark:text-violet-300"
+            : "font-mono"
+        }
+      >
+        {part}
+      </span>
+    );
+  });
 }
 
 function ChunkCard({

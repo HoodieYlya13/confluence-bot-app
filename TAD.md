@@ -35,11 +35,19 @@ The React Compiler is enabled (`reactCompiler: true`), so there is no manual `us
 
 The comparison is the product, so one server render runs both role sessions in parallel (`Promise.allSettled`) and produces a per-role result envelope. This charges the rate limiter once per comparison and keeps the two panes atomic (no skew between halves of the demo). Per-pane upstream failures degrade independently instead of failing the whole comparison.
 
+### Two modes: compare retrieval vs compare answers
+
+The playground exposes both server deployment patterns from one form. **Compare retrieval** calls `semantic_search_accelerator` and shows the raw chunks each role may see — proving the ACL pushdown (layers 1–2). **Compare answers** calls `ask_accelerator_operations`, the tool that runs the full LangGraph agent server-side (retrieve → verify → generate → leak scan), and shows one grounded answer per role — proving the generation-side guardrails (layers 3–4) and that RBAC shapes the _answer_, not just the retrieval. Both modes were kept because the chunk diff is the clearest proof of retrieval RBAC, while the answer diff is the more legible proof for non-technical viewers (the junior simply gets a different answer).
+
+Mode is a second search param (`?mode=search|answer`, default `search`), selected by two submit buttons sharing `name="mode"` — so the choice rides the same GET/`next/form` flow and works with JavaScript disabled (the activated button's value is encoded into the URL; pressing Enter selects the first, retrieval). Each result footer links to the same query in the other mode. Answer mode is rate-limited tighter than search (4/min, 150/day vs 10/min, 500/day) because it spends an LLM call server-side, not just a vector query.
+
+In answer mode the restricted accent moves from whole chunks to **hex register tokens** (`0x…`): tokens present in the lead's answer but absent from the junior's are badged violet — the same "clearance accent" idea applied to generated text, and a direct visual echo of the server's post-generation leak scanner. A refusal (`Security Exception`) renders as a distinct rose "blocked by guardrail" card.
+
 ### Restricted-chunk highlight: a clearance accent, not an error
 
 Chunks the lead retrieved but the junior did not are badged "Restricted — requires ATS_CORE_LEAD" in violet. An earlier version used rose ("Hidden from JUNIOR_OP"), but rose is the app's danger color (error notices, blocked-attempt counts), so the lead pane read as if something was wrong — when the highlight is the success story: elevated access doing its job. Violet was chosen because the other accents are taken: amber marks the junior role, emerald the lead, rose errors.
 
-The badge condition — the chunk's `doc_id` is absent from the junior's result set — is a heuristic, not ground truth. A document the junior *can* see could rank below their top-5 and be falsely badged. The demo corpus keeps restricted and routine documents distinct enough that this doesn't occur in practice, and the alternative (asking the server for per-document ACLs) would add an API surface solely for presentation.
+The badge condition — the chunk's `doc_id` is absent from the junior's result set — is a heuristic, not ground truth. A document the junior _can_ see could rank below their top-5 and be falsely badged. The demo corpus keeps restricted and routine documents distinct enough that this doesn't occur in practice, and the alternative (asking the server for per-document ACLs) would add an API surface solely for presentation.
 
 ### Rate limiting: platform headers, not cookies
 

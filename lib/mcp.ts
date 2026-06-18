@@ -43,6 +43,44 @@ export async function semanticSearch(
   return result;
 }
 
+export async function askQuestion(
+  role: DemoRole,
+  question: string,
+): Promise<string> {
+  const token = process.env[ROLE_TOKEN_ENV[role]];
+  if (!token) throw new Error(`${ROLE_TOKEN_ENV[role]} is not configured.`);
+
+  const transport = new StreamableHTTPClientTransport(
+    new URL("/mcp", MCP_SERVER_URL),
+    { requestInit: { headers: { Authorization: `Bearer ${token}` } } },
+  );
+  const client = new Client({ name: "confluence-bot-app", version: "0.1.0" });
+
+  const [err, result] = await tryCatch(async () => {
+    await client.connect(transport);
+    const res = await client.callTool({
+      name: "ask_accelerator_operations",
+      arguments: { question },
+    });
+    if (res.isError)
+      throw new Error(extractText(res.content) || "MCP tool call failed.");
+    return normalizeAnswer(res as Record<string, unknown>);
+  });
+
+  await tryCatch(client.close());
+
+  if (err) throw err;
+  return result;
+}
+
+function normalizeAnswer(result: Record<string, unknown>): string {
+  const structured = (
+    result.structuredContent as { result?: unknown } | undefined
+  )?.result;
+  if (typeof structured === "string") return structured;
+  return extractText(result.content);
+}
+
 function extractText(content: unknown): string {
   if (!Array.isArray(content)) return "";
   return content

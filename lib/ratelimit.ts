@@ -37,6 +37,12 @@ function getLimiter(identifier: string, redis: Redis) {
         limiter: Ratelimit.slidingWindow(10, "1 m"),
         prefix: "rl:ip",
       });
+    case "answer":
+      return new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(4, "1 m"),
+        prefix: "rl:ip",
+      });
     default:
       return new Ratelimit({
         redis,
@@ -47,12 +53,19 @@ function getLimiter(identifier: string, redis: Redis) {
 }
 
 function getGlobalBudget(identifier: string, redis: Redis) {
-  if (identifier !== "search") return null;
-  return new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(500, "1 d"),
-    prefix: "rl:budget",
-  });
+  if (identifier === "search")
+    return new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(500, "1 d"),
+      prefix: "rl:budget",
+    });
+  if (identifier === "answer")
+    return new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(150, "1 d"),
+      prefix: "rl:budget",
+    });
+  return null;
 }
 
 async function getClientIp(): Promise<string> {

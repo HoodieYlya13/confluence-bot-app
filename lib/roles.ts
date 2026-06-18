@@ -5,6 +5,7 @@ export type DemoMode = "search" | "answer";
 
 export type SearchChunk = {
   doc_id: string;
+  title?: string;
   space: string;
   url?: string;
   chunk_index: number;

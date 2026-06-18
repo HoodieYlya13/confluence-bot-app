@@ -4,6 +4,7 @@ import type {
   PaneResult,
   SearchChunk,
 } from "@/lib/roles";
+import { parseMarkdown } from "./markdown";
 
 const HEX_TOKEN = /(0x[0-9A-Fa-f]{4,})/g;
 
@@ -122,32 +123,22 @@ export function AnswerBody({
       </div>
     );
 
+  const isGreeting =
+    answer.trim() ===
+    "Hello! I am the CERN BE-CSS Operations Assistant. How can I help you with accelerator operations today?";
+
   return (
-    <div className="rounded-md border border-zinc-200 dark:border-zinc-800 p-3">
-      <p className="whitespace-pre-line text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-        {renderWithTokens(answer, juniorTokens)}
-      </p>
+    <div className="flex flex-col gap-2">
+      <div className="rounded-md border border-zinc-200 dark:border-zinc-800 p-3">
+        {parseMarkdown(answer, juniorTokens)}
+      </div>
+      {isGreeting && (
+        <p className="text-[11px] text-zinc-500 italic px-1">
+          * LangGraph skipped everything because it detected a greeting
+        </p>
+      )}
     </div>
   );
-}
-
-function renderWithTokens(text: string, juniorTokens: Set<string>) {
-  return text.split(HEX_TOKEN).map((part, index) => {
-    if (index % 2 === 0) return <span key={index}>{part}</span>;
-    const restricted = !juniorTokens.has(part);
-    return (
-      <span
-        key={index}
-        className={
-          restricted
-            ? "rounded bg-violet-100 dark:bg-violet-950 px-1 font-mono text-violet-700 dark:text-violet-300"
-            : "font-mono"
-        }
-      >
-        {part}
-      </span>
-    );
-  });
 }
 
 function ChunkCard({

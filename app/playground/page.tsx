@@ -21,11 +21,16 @@ export default function PlaygroundPage({
   searchParams: PlaygroundSearchParams;
 }) {
   const resolvedParams = use(searchParams);
+  const mode = getModeFromParams(
+    resolvedParams.mode,
+    resolvedParams.suggested_q,
+    resolvedParams.q,
+  );
   const query = getQueryFromParams(
     resolvedParams.q,
     resolvedParams.suggested_q,
+    mode,
   );
-  const mode = getModeFromParams(resolvedParams.mode);
 
   return (
     <div className="flex flex-col gap-8">
@@ -61,14 +66,44 @@ export default function PlaygroundPage({
 function getQueryFromParams(
   q: string | string[] | undefined,
   suggestedQ: string | string[] | undefined,
+  mode: DemoMode,
 ): string {
   const rawSuggested = Array.isArray(suggestedQ) ? suggestedQ[0] : suggestedQ;
-  if (rawSuggested?.trim()) return rawSuggested.trim();
-  const rawQ = Array.isArray(q) ? q[0] : q;
-  return rawQ?.trim() ?? "";
+  let resolved = rawSuggested?.trim();
+  if (!resolved) {
+    const rawQ = Array.isArray(q) ? q[0] : q;
+    resolved = rawQ?.trim() ?? "";
+  }
+
+  if (resolved === "Greet the bot" && mode === "answer") {
+    const greetings = [
+      "hello",
+      "hi",
+      "hey",
+      "help",
+      "thanks",
+      "good morning",
+      "good afternoon",
+      "good evening",
+    ];
+    return greetings[Math.floor(Math.random() * greetings.length)];
+  }
+
+  return resolved;
 }
 
-function getModeFromParams(mode: string | string[] | undefined): DemoMode {
+function getModeFromParams(
+  mode: string | string[] | undefined,
+  suggestedQ: string | string[] | undefined,
+  q: string | string[] | undefined,
+): DemoMode {
+  const rawSuggested = Array.isArray(suggestedQ) ? suggestedQ[0] : suggestedQ;
+  const rawQ = Array.isArray(q) ? q[0] : q;
+  const resolvedQ = rawSuggested?.trim() || rawQ?.trim();
+
+  if (resolvedQ === "Greet the bot")
+    return "answer";
+
   const raw = Array.isArray(mode) ? mode[0] : mode;
   return raw === "answer" ? "answer" : "search";
 }

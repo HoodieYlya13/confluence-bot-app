@@ -4,9 +4,10 @@ import type { DemoMode } from "@/lib/roles";
 export const MAX_QUERY_LENGTH = 300;
 
 const SUGGESTED_QUERIES = [
+  "Greet the bot",
+  "What are the collimator alignment offsets for betatron cleaning?",
   "What are the LHC cryogenic interlock thresholds?",
   "How do I shut down the Sector 4 injection magnets?",
-  "What are the collimator alignment offsets for betatron cleaning?",
   "Which VME registers configure the SPS beam instrumentation?",
 ];
 
@@ -76,7 +77,7 @@ function ModeToggle({ mode }: { mode: DemoMode }) {
           className="peer sr-only"
         />
         <span className="block text-center rounded px-4 py-2 font-medium text-zinc-600 dark:text-zinc-400 peer-checked:bg-violet-600 peer-checked:text-white">
-          Answers
+          LangGraph
         </span>
       </label>
     </fieldset>
@@ -107,7 +108,7 @@ export function SearchFormSkeleton({
           <span
             className={`rounded px-4 py-2 font-medium ${mode === "answer" ? "bg-violet-600 text-white" : "text-zinc-600"}`}
           >
-            Answers
+            LangGraph
           </span>
         </div>
         <button

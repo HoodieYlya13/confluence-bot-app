@@ -59,7 +59,7 @@ export default function PlaygroundPage({
       </section>
 
       <section className="flex flex-col gap-3">
-        <Suspense fallback={<SearchForm query="" />}>
+        <Suspense fallback={<SearchForm query="" mode="search" />}>
           <PrefilledSearchForm searchParams={searchParams} />
         </Suspense>
         <div className="flex flex-wrap gap-2">
@@ -101,10 +101,14 @@ async function PrefilledSearchForm({
 }: {
   searchParams: PlaygroundSearchParams;
 }) {
-  return <SearchForm query={await getQuery(searchParams)} />;
+  const [query, mode] = await Promise.all([
+    getQuery(searchParams),
+    getMode(searchParams),
+  ]);
+  return <SearchForm query={query} mode={mode} />;
 }
 
-function SearchForm({ query }: { query: string }) {
+function SearchForm({ query, mode }: { query: string; mode: DemoMode }) {
   return (
     <Form action="/playground" className="flex flex-col gap-2 sm:flex-row">
       <input
@@ -116,25 +120,47 @@ function SearchForm({ query }: { query: string }) {
         placeholder="Ask about accelerator operations…"
         className="flex-1 rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 py-2.5 text-sm outline-none focus:border-sky-500 dark:focus:border-sky-500"
       />
-      <div className="flex gap-2">
-        <PendingButton
+      <ModeToggle mode={mode} />
+      <PendingButton
+        pendingLabel="Comparing…"
+        className="rounded-md bg-zinc-900 dark:bg-zinc-100 px-5 py-2.5 text-sm font-medium text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-white disabled:opacity-50"
+      >
+        Compare
+      </PendingButton>
+    </Form>
+  );
+}
+
+function ModeToggle({ mode }: { mode: DemoMode }) {
+  return (
+    <fieldset className="flex shrink-0 rounded-md border border-zinc-300 dark:border-zinc-700 p-0.5 text-sm">
+      <label className="cursor-pointer w-1/2">
+        <input
+          key={`search-${mode}`}
+          type="radio"
           name="mode"
           value="search"
-          pendingLabel="Searching…"
-          className="rounded-md bg-sky-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-sky-500 disabled:opacity-50"
-        >
-          Compare retrieval
-        </PendingButton>
-        <PendingButton
+          defaultChecked={mode !== "answer"}
+          className="peer sr-only"
+        />
+        <span className="block text-center rounded px-4 py-2 font-medium text-zinc-600 dark:text-zinc-400 peer-checked:bg-sky-600 peer-checked:text-white">
+          Retrieval
+        </span>
+      </label>
+      <label className="cursor-pointer w-1/2">
+        <input
+          key={`answer-${mode}`}
+          type="radio"
           name="mode"
           value="answer"
-          pendingLabel="Generating…"
-          className="rounded-md bg-violet-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50"
-        >
-          Compare answers
-        </PendingButton>
-      </div>
-    </Form>
+          defaultChecked={mode === "answer"}
+          className="peer sr-only"
+        />
+        <span className="block text-center rounded px-4 py-2 font-medium text-zinc-600 dark:text-zinc-400 peer-checked:bg-violet-600 peer-checked:text-white">
+          Answers
+        </span>
+      </label>
+    </fieldset>
   );
 }
 

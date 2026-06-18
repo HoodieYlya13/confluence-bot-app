@@ -6,25 +6,15 @@ export function PendingButton({
   children,
   pendingLabel,
   className,
-  name,
-  value,
 }: {
   children: React.ReactNode;
   pendingLabel: string;
   className?: string;
-  name?: string;
-  value?: string;
 }) {
   const { pending } = useFormStatus();
 
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className={className}
-      name={name}
-      value={value}
-    >
+    <button type="submit" disabled={pending} className={className}>
       {pending ? pendingLabel : children}
     </button>
   );

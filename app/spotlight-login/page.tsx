@@ -1,5 +1,6 @@
+import { use } from "react";
 import { PendingButton } from "@/components/pending-button";
-import { ALLOWED_REDIRECT_URI } from "@/lib/auth-codes";
+import { isAllowedRedirectUri } from "@/lib/auth-codes";
 import { DEMO_ROLES, ROLE_LABELS, ROLE_TOKEN_ENV } from "@/lib/roles";
 import { authorizeRole } from "./actions";
 
@@ -13,20 +14,20 @@ type SpotlightLoginSearchParams = Promise<{
   redirect_uri?: string;
 }>;
 
-// TODO: instead of async use "use()"
-export default async function SpotlightLoginPage({
+export default function SpotlightLoginPage({
   searchParams,
 }: {
   searchParams: SpotlightLoginSearchParams;
 }) {
-  const { state, code_challenge, redirect_uri } = await searchParams;
+  const { state, code_challenge, redirect_uri } = use(searchParams);
 
   const valid =
     typeof state === "string" &&
     state.length > 0 &&
     typeof code_challenge === "string" &&
     code_challenge.length > 0 &&
-    redirect_uri === ALLOWED_REDIRECT_URI;
+    typeof redirect_uri === "string" &&
+    isAllowedRedirectUri(redirect_uri);
 
   if (!valid)
     return (

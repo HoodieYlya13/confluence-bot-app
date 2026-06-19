@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="confluence-bot-app" width="96" height="96" />
+</p>
+
 # confluence-bot-app
 
 Public console for the [mcp-confluence-documentation-rag](https://github.com/HoodieYlya13/mcp-confluence-documentation-rag) server — an RBAC-enforced MCP documentation RAG deployed on Hugging Face Spaces.

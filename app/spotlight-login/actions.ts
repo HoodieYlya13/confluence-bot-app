@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { ALLOWED_REDIRECT_URI, mintCode } from "@/lib/auth-codes";
+import { isAllowedRedirectUri, mintCode } from "@/lib/auth-codes";
 import { checkRateLimit } from "@/lib/ratelimit";
 import { isDemoRole, ROLE_TOKEN_ENV } from "@/lib/roles";
 
@@ -11,7 +11,7 @@ export async function authorizeRole(formData: FormData) {
   const codeChallenge = String(formData.get("code_challenge") ?? "");
   const redirectUri = String(formData.get("redirect_uri") ?? "");
 
-  if (redirectUri !== ALLOWED_REDIRECT_URI)
+  if (!isAllowedRedirectUri(redirectUri))
     throw new Error("Invalid redirect_uri.");
   if (!isDemoRole(role)) throw new Error("Unknown role.");
   if (!state || !codeChallenge)

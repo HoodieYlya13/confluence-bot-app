@@ -1,7 +1,14 @@
 import "server-only";
 import { Redis } from "@upstash/redis";
 
-export const ALLOWED_REDIRECT_URI = "confluence-spotlight://auth";
+export const ALLOWED_REDIRECT_URIS = [
+  "confluence-spotlight://auth",
+  "confluence-spotlight-beta://auth",
+] as const;
+
+export function isAllowedRedirectUri(uri: string): boolean {
+  return (ALLOWED_REDIRECT_URIS as readonly string[]).includes(uri);
+}
 
 export type CodePayload = {
   role: string;

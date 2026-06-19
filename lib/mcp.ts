@@ -2,15 +2,11 @@ import "server-only";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import type { DemoRole, SearchChunk } from "./roles";
+import { ROLE_TOKEN_ENV } from "./roles";
 import { MCP_SERVER_URL } from "./upstream";
 import { tryCatch, tryCatchSync } from "./utils";
 
 export { DEMO_ROLES, type DemoRole, type SearchChunk } from "./roles";
-
-const ROLE_TOKEN_ENV: Record<DemoRole, string> = {
-  JUNIOR_OP: "MCP_TOKEN_JUNIOR_OP",
-  ATS_CORE_LEAD: "MCP_TOKEN_ATS_CORE_LEAD",
-};
 
 async function runMcpTool<T>(
   role: DemoRole,

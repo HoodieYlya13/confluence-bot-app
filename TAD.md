@@ -15,7 +15,17 @@ The app is deliberately thin. The engineering story (4-layer RBAC, ACL pushdown,
 
 ### All upstream calls are server-side; tokens never reach the browser
 
-Server components and server actions are the only places that talk to the MCP server. The two demo bearer tokens live in environment variables (`MCP_TOKEN_JUNIOR_OP`, `MCP_TOKEN_ATS_CORE_LEAD`) read inside `lib/mcp.ts`, which is guarded by `server-only` so any accidental client import fails the build. The browser only ever receives rendered HTML and RSC payloads — there is no JSON API surface at all.
+Server components and server actions are the only places that talk to the MCP server. The two demo bearer tokens live in environment variables (`MCP_TOKEN_JUNIOR_OP`, `MCP_TOKEN_ATS_CORE_LEAD`) read inside `lib/mcp.ts`, which is guarded by `server-only` so any accidental client import fails the build. The browser only ever receives rendered HTML and RSC payloads — the playground has no JSON API surface at all. The one deliberate JSON endpoint in the app is the spotlight token broker (below), and it exists precisely to keep the *desktop* client's token server-side too.
+
+### Spotlight token broker: a deep-link OAuth handoff (Authorization Code + PKCE)
+
+The desktop client (`confluence-spotlight`) signs in through this console rather than shipping a token, so the same `MCP_TOKEN_*` that power the playground also serve the desktop app — and the bearer token never lands in the desktop *webview*, mirroring the `server-only` posture here. Three pieces implement the standard public-client OAuth shape:
+
+- **`app/spotlight-login/page.tsx`** — the authorize/login surface. A server component that validates `redirect_uri` against an allowlist (`ALLOWED_REDIRECT_URI = confluence-spotlight://auth`) and `code_challenge`/`state`, then renders one persona button per configured role. This is *where role selection belongs* — at the IdP, not baked into the client.
+- **`app/spotlight-login/actions.ts`** — `authorizeRole`, a server action. The persona buttons are plain `<form action={…}>` (no client JS, same progressive-enhancement ethos as the playground), so submitting is a native top-level POST. It mints a single-use authorization `code` (`lib/auth-codes.ts`, 60 s TTL in Upstash, keyed to role + PKCE challenge + state) and `redirect`s to the custom scheme — a real top-level navigation so macOS reliably hands off to the app.
+- **`app/api/spotlight/token/route.ts`** — the token endpoint, the lone Route Handler. It consumes the code (single-use via `getdel`), re-verifies PKCE S256, and returns `{ access_token, role, role_label }`. The desktop app's Rust process (never its webview) calls this.
+
+**Honest scope:** the token returned is the *pre-provisioned demo token* for the role — this endpoint stands in for an IdP's token endpoint, it does not mint per-user credentials against a directory. But the surrounding protocol is genuine: PKCE (a desktop app is a public client and can't hold a secret), CSRF `state`, a single-use short-TTL code, a redirect-URI allowlist, and the existing Upstash limiter on both the authorize action and the token exchange (`"authorize"` / `"token"` identifiers in `lib/ratelimit.ts`). Role metadata shared with the playground (`ROLE_TOKEN_ENV`, `ROLE_LABELS`, `isDemoRole`) lives in `lib/roles.ts`. When `UPSTASH_*` is absent in dev, the code store falls back to an in-memory `Map`, matching how `lib/ratelimit.ts` degrades.
 
 ### Server-first UI: the URL is the state, client JS is one button
 

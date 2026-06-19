@@ -43,6 +43,13 @@ function getLimiter(identifier: string, redis: Redis) {
         limiter: Ratelimit.slidingWindow(4, "1 m"),
         prefix: "rl:ip",
       });
+    case "authorize":
+    case "token":
+      return new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(10, "1 m"),
+        prefix: "rl:ip",
+      });
     default:
       return new Ratelimit({
         redis,

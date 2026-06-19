@@ -422,9 +422,9 @@ function DownloadCard({
   }
 
   return (
-    <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 flex flex-col justify-between gap-4">
+    <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 flex flex-col justify-between gap-4 min-w-0 overflow-hidden">
       <div>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-medium flex items-center gap-2">
             <Image
               src={Logo}
@@ -439,7 +439,7 @@ function DownloadCard({
             {tagName}
           </span>
         </div>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
           {userOS === "linux" ? (
             <>
               Summon the client using the global shortcut{" "}
@@ -461,7 +461,7 @@ function DownloadCard({
         </p>
       </div>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 min-w-0">
         {targetAsset && (
           <a
             href={targetAsset.browser_download_url}
@@ -474,51 +474,49 @@ function DownloadCard({
           </a>
         )}
 
-        <div className="text-center text-xs text-zinc-500">
-          Other platforms:{" "}
-          <span className="inline-flex gap-2">
-            {assets.mac && (
-              <a
-                href={assets.mac.browser_download_url}
-                className="hover:text-zinc-900 dark:hover:text-zinc-100 hover:underline"
-              >
-                macOS (.dmg)
-              </a>
-            )}
-            {assets.mac &&
-              (assets.win || assets.linuxDeb || assets.linuxAppImage) && (
-                <span className="text-zinc-300 dark:text-zinc-700">·</span>
-              )}
-            {assets.win && (
-              <a
-                href={assets.win.browser_download_url}
-                className="hover:text-zinc-900 dark:hover:text-zinc-100 hover:underline"
-              >
-                Windows (.exe)
-              </a>
-            )}
-            {assets.win && (assets.linuxDeb || assets.linuxAppImage) && (
+        <div className="text-center text-xs text-zinc-500 flex flex-wrap items-center justify-center gap-1.5">
+          <span>Other platforms:</span>
+          {assets.mac && (
+            <a
+              href={assets.mac.browser_download_url}
+              className="hover:text-zinc-900 dark:hover:text-zinc-100 hover:underline"
+            >
+              macOS (.dmg)
+            </a>
+          )}
+          {assets.mac &&
+            (assets.win || assets.linuxDeb || assets.linuxAppImage) && (
               <span className="text-zinc-300 dark:text-zinc-700">·</span>
             )}
-            {assets.linuxAppImage && (
-              <a
-                href={assets.linuxAppImage.browser_download_url}
-                className="hover:text-zinc-900 dark:hover:text-zinc-100 hover:underline"
-              >
-                Linux (AppImage)
-              </a>
-            )}
-          </span>
+          {assets.win && (
+            <a
+              href={assets.win.browser_download_url}
+              className="hover:text-zinc-900 dark:hover:text-zinc-100 hover:underline"
+            >
+              Windows (.exe)
+            </a>
+          )}
+          {assets.win && (assets.linuxDeb || assets.linuxAppImage) && (
+            <span className="text-zinc-300 dark:text-zinc-700">·</span>
+          )}
+          {assets.linuxAppImage && (
+            <a
+              href={assets.linuxAppImage.browser_download_url}
+              className="hover:text-zinc-900 dark:hover:text-zinc-100 hover:underline"
+            >
+              Linux (AppImage)
+            </a>
+          )}
         </div>
 
         {userOS === "mac" && (
-          <div className="rounded border border-amber-200 dark:border-amber-900/50 bg-amber-50/50 dark:bg-amber-950/10 p-2.5 text-xs text-amber-800 dark:text-amber-300 leading-normal">
+          <div className="rounded border border-amber-200 dark:border-amber-900/50 bg-amber-50/50 dark:bg-amber-950/10 p-2.5 text-xs text-amber-800 dark:text-amber-300 leading-normal min-w-0 overflow-hidden">
             <strong>Bypass Gatekeeper:</strong> Drag the app to{" "}
             <code className="font-mono text-zinc-800 dark:text-zinc-200 bg-amber-100/50 dark:bg-amber-950/50 px-1 rounded">
               /Applications
             </code>
             , then run this in your Terminal:
-            <pre className="mt-1.5 overflow-x-auto rounded bg-zinc-900 text-zinc-200 p-1.5 font-mono text-[10px] select-all leading-tight">
+            <pre className="mt-1.5 overflow-x-auto rounded bg-zinc-900 text-zinc-200 p-1.5 font-mono text-[10px] select-all leading-tight w-full max-w-full">
               xattr -dr com.apple.quarantine &quot;/Applications/Confluence
               Spotlight.app&quot;
             </pre>

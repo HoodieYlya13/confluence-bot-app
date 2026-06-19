@@ -12,11 +12,12 @@ const ROLE_TOKEN_ENV: Record<DemoRole, string> = {
   ATS_CORE_LEAD: "MCP_TOKEN_ATS_CORE_LEAD",
 };
 
-export async function semanticSearch(
+async function runMcpTool<T>(
   role: DemoRole,
-  query: string,
-  topK: number,
-): Promise<SearchChunk[]> {
+  toolName: string,
+  args: Record<string, unknown>,
+  normalize: (res: Record<string, unknown>) => T,
+): Promise<T> {
   const token = process.env[ROLE_TOKEN_ENV[role]];
   if (!token) throw new Error(`${ROLE_TOKEN_ENV[role]} is not configured.`);
 
@@ -29,12 +30,12 @@ export async function semanticSearch(
   const [err, result] = await tryCatch(async () => {
     await client.connect(transport);
     const res = await client.callTool({
-      name: "semantic_search_accelerator",
-      arguments: { query, top_k: topK },
+      name: toolName,
+      arguments: args,
     });
     if (res.isError)
       throw new Error(extractText(res.content) || "MCP tool call failed.");
-    return normalizeResult(res as Record<string, unknown>);
+    return normalize(res as Record<string, unknown>);
   });
 
   await tryCatch(client.close());
@@ -43,34 +44,29 @@ export async function semanticSearch(
   return result;
 }
 
+export async function semanticSearch(
+  role: DemoRole,
+  query: string,
+  topK: number,
+): Promise<SearchChunk[]> {
+  return runMcpTool(
+    role,
+    "semantic_search_accelerator",
+    { query, top_k: topK },
+    normalizeResult,
+  );
+}
+
 export async function askQuestion(
   role: DemoRole,
   question: string,
 ): Promise<string> {
-  const token = process.env[ROLE_TOKEN_ENV[role]];
-  if (!token) throw new Error(`${ROLE_TOKEN_ENV[role]} is not configured.`);
-
-  const transport = new StreamableHTTPClientTransport(
-    new URL("/mcp", MCP_SERVER_URL),
-    { requestInit: { headers: { Authorization: `Bearer ${token}` } } },
+  return runMcpTool(
+    role,
+    "ask_accelerator_operations",
+    { question },
+    normalizeAnswer,
   );
-  const client = new Client({ name: "confluence-bot-app", version: "0.1.0" });
-
-  const [err, result] = await tryCatch(async () => {
-    await client.connect(transport);
-    const res = await client.callTool({
-      name: "ask_accelerator_operations",
-      arguments: { question },
-    });
-    if (res.isError)
-      throw new Error(extractText(res.content) || "MCP tool call failed.");
-    return normalizeAnswer(res as Record<string, unknown>);
-  });
-
-  await tryCatch(client.close());
-
-  if (err) throw err;
-  return result;
 }
 
 function normalizeAnswer(result: Record<string, unknown>): string {

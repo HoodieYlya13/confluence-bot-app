@@ -6,18 +6,6 @@ export const ROLE_TOKEN_ENV: Record<DemoRole, string> = {
   ATS_CORE_LEAD: "MCP_TOKEN_ATS_CORE_LEAD",
 };
 
-export const ROLE_LABELS: Record<DemoRole, string> = {
-  JUNIOR_OP: "Junior Operator",
-  ATS_CORE_LEAD: "ATS Core Lead",
-};
-
-export function isDemoRole(value: unknown): value is DemoRole {
-  return (
-    typeof value === "string" &&
-    (DEMO_ROLES as readonly string[]).includes(value)
-  );
-}
-
 export type DemoMode = "search" | "answer";
 
 export type SearchChunk = {
